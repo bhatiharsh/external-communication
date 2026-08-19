@@ -13,7 +13,7 @@ public class ExternalController {
 
     @GetMapping("/reboot/{id}")
     public void rebootDevice(@PathVariable int id) {
-       // System.out.println("Device Rebooted:- " + id);
+        System.out.println("Device Rebooted:- " + id);
         try {
             Thread.sleep(500);
 
