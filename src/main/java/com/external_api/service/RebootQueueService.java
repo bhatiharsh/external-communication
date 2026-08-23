@@ -22,4 +22,5 @@ public class RebootQueueService {
     public int getSize() {
         return queue.size();
     }
+    
 }

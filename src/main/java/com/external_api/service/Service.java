@@ -4,8 +4,12 @@ package com.external_api.service;
 import com.external_api.dto.QueueResponse;
 import com.external_api.externalrebootservice.ExternalReboot;
 import com.external_api.precheck.PreCheck;
+import com.external_api.rabbitmq.ConfigMQ;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +26,9 @@ public class Service {
     private final PreCheck preCheck;
 
     private volatile boolean running = true;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -67,4 +74,29 @@ public class Service {
 
         );
     }
+
+
+    public void rebootSlow(int id) {
+        restTemplate.getForObject(
+                "http://localhost:9191/external/api/reboot/{id}",
+                Integer.class,
+                id
+        );
+    }
+
+
+    @RabbitListener(
+            queues = ConfigMQ.MAIL_QUEUE,
+            containerFactory =
+                    "mailListenerContainerFactory"
+    )
+    public void consume(String message) {
+
+
+        log.info("========== MESSAGE RECEIVED ==========");
+        log.info("message: {}", message);
+        log.info("======================================");
+
+    }
+
 }

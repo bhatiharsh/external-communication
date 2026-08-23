@@ -3,17 +3,17 @@ package com.external_api.controller;
 
 import com.external_api.dto.QueueResponse;
 import com.external_api.precheck.PreCheck;
+import com.external_api.rabbitmq.ConfigMQ;
 import com.external_api.service.RebootQueueService;
 import com.external_api.service.Service;
 import org.apache.coyote.Response;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
 import java.util.Map;
 
 
@@ -33,6 +33,8 @@ public class InternalController {
     @Autowired
     private PreCheck preCheck;
 
+    @Autowired
+    private RabbitTemplate RabbitTemplate;
 
     @GetMapping("/reboot/{id}")
     public ResponseEntity<?> deviceReboot(@PathVariable int id) {
@@ -68,12 +70,56 @@ public class InternalController {
 
     }
 
+    @GetMapping("/without-queue/{id}")
+    public void withoutQueueCode(@PathVariable int id) {
+        service.rebootSlow(id);
+    }
+
     @GetMapping("/method/load")
     public void loadApi() {
+        long start = System.currentTimeMillis();
         System.out.println("started");
+
         for (int i = 0; i < 200; i++) {
             deviceReboot(i);
         }
+
+        long end = System.currentTimeMillis();
+
+        System.out.println(end - start / 600);
         System.out.println("Stopped");
     }
+
+
+    @GetMapping("/method/load2")
+    public void loadApI() {
+        long start = System.currentTimeMillis();
+        System.out.println("started");
+        for (int i = 0; i < 50; i++) {
+            withoutQueueCode(i);
+        }
+        long end = System.currentTimeMillis();
+
+        System.out.println(end - start / 600);
+
+        System.out.println("Stopped");
+    }
+
+
+    @GetMapping("/sent-mail/{id}")
+    public void sentMail(@PathVariable int id) {
+        // for (int i = 0; i < 100; i++)
+
+        System.out.println("Publishing message to RabbitMQ");
+
+        RabbitTemplate.convertAndSend(
+                ConfigMQ.MAIL_EXCHANGE,
+                ConfigMQ.MAIL_ROUTING_KEY, "Hello");
+
+        System.out.println("Message published");
+
+
+    }
+
+
 }

@@ -1,6 +1,5 @@
 package com.external_api.precheck;
 
-import com.external_api.controller.InternalController;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;

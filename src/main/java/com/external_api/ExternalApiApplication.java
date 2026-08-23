@@ -1,5 +1,7 @@
 package com.external_api;
 
+import com.external_api.rabbitmq.ConfigMQ;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +18,13 @@ public class ExternalApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ExternalApiApplication.class, args);
+	}
+
+	@PostConstruct
+	public void init() {
+		System.out.println(
+				"LISTENING QUEUE = " + ConfigMQ.MAIL_QUEUE
+		);
 	}
 
 }
